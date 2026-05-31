@@ -166,6 +166,20 @@ export default function App() {
           onPressIn={() => send('s')}
           onPressOut={() => send(' ')}
         />
+
+        {/* Pince */}
+        <View style={styles.row}>
+          <DirButton
+            label="🤏"
+            enabled={connected}
+            onPressIn={() => send('v')}
+          />
+          <DirButton
+            label="✋"
+            enabled={connected}
+            onPressIn={() => send('c')}
+          />
+        </View>
       </View>
     </View>
   );
