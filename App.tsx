@@ -180,6 +180,20 @@ export default function App() {
             onPressIn={() => send('c')}
           />
         </View>
+
+        {/* Tête */}
+        <View style={styles.row}>
+          <DirButton
+            label="Tete ▲"
+            enabled={connected}
+            onPressIn={() => send('w')}
+          />
+          <DirButton
+            label="Tete ▼"
+            enabled={connected}
+            onPressIn={() => send('x')}
+          />
+        </View>
       </View>
     </View>
   );
