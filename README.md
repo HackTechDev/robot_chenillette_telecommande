@@ -44,6 +44,10 @@ L'APK est généré dans `android/app/build/outputs/apk/release/app-release.apk`
 | ↺ | Pivoter à gauche de 45° |
 | ↻ | Pivoter à droite de 45° |
 | ■ | Stop immédiat |
+| 🤏 | Fermer la pince |
+| ✋ | Ouvrir la pince |
+| Tete ▲ | Lever la tête |
+| Tete ▼ | Baisser la tête |
 
 > Les boutons sont grisés tant que le robot n'est pas connecté.
 
