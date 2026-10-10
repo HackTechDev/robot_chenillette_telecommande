@@ -59,6 +59,8 @@ Characters sent over Bluetooth to the robot:
 
 Forward (`z`), backward (`s`) and turn (`q`/`d`) buttons send their character on `onPressIn` and a stop character (`' '`) on `onPressOut`: the robot moves as long as the button is held. The app does not repeat commands while held, so the robot firmware must not use a keep-alive timeout.
 
+**Safety limitations** (documented in README, "Limites de sécurité connues"): because there is no keep-alive, a lost stop character leaves the robot moving. Currently: `send()` swallows write errors; no `onDeviceDisconnected` listener, so `connected` stays `true` after a link loss; `disconnect()` and app backgrounding do not send `' '` first; releasing one button while another is held sends a stop. Any change to the command flow should keep these in mind.
+
 ## Key Dependencies
 
 - `react-native-bluetooth-classic ^1.73.0-rc.17` — classic Bluetooth SPP; the `build.gradle` in its pub cache must use `mavenCentral()` instead of the defunct `jcenter()`.

@@ -86,6 +86,24 @@ Si la fenêtre n'apparaît pas : débrancher puis rebrancher le câble USB. En d
 
 > Les boutons sont grisés tant que le robot n'est pas connecté.
 
+## Limites de sécurité connues
+
+Les mouvements reposent sur deux caractères seulement : la commande est envoyée **une seule fois** à l'appui, et le stop (espace) **une seule fois** au relâchement. Le firmware n'a pas de délai de sécurité (keep-alive) : si le stop n'arrive pas, le robot continue de bouger.
+
+| Problème | Conséquence |
+|----------|-------------|
+| **Perte de la liaison Bluetooth pendant un mouvement** (robot hors de portée, module coupé) | Le stop n'arrive jamais : le robot continue d'avancer ou de pivoter. Les erreurs d'envoi sont ignorées silencieusement par l'app (`catch (_) {}` dans `send()`). |
+| **Perte de connexion non détectée** | L'app n'écoute pas les déconnexions : elle reste affichée « Connecté » et les boutons restent actifs alors que plus rien n'est transmis. |
+| **Déconnexion ou passage en arrière-plan sans stop** | Le bouton **Connecté** coupe la liaison sans envoyer d'espace. Si on quitte l'app (bouton accueil, appel entrant…) pendant qu'un bouton est maintenu, le relâchement n'est jamais reçu. Dans les deux cas, le robot garde son dernier mouvement. |
+| **Appui sur plusieurs boutons** | Maintenir ▲ puis appuyer et relâcher ↺ envoie un stop : le robot s'arrête alors que ▲ est toujours maintenu. |
+
+**En pratique :** garder le robot à portée, toujours relâcher les boutons avant de se déconnecter ou de quitter l'app, et pouvoir couper l'alimentation du robot à la main.
+
+**Pistes de correction :**
+
+- *Côté app* : envoyer un stop avant `disconnect()` et lors du passage en arrière-plan (`AppState`), écouter les déconnexions (`onDeviceDisconnected`) pour mettre à jour l'interface, et signaler les erreurs d'envoi.
+- *Côté firmware + app* : ajouter un délai de sécurité dans le firmware (arrêt si aucune commande depuis ~300 ms) et faire renvoyer la commande périodiquement par l'app tant que le bouton est maintenu.
+
 ## Dépendances principales
 
 | Package | Rôle |
