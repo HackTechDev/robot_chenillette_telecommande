@@ -41,8 +41,8 @@ L'APK est généré dans `android/app/build/outputs/apk/release/app-release.apk`
 |--------|--------|
 | ▲ | Maintenir = avance, relâcher = stop |
 | ▼ | Maintenir = recule, relâcher = stop |
-| ↺ | Pivoter à gauche de 45° |
-| ↻ | Pivoter à droite de 45° |
+| ↺ | Maintenir = pivote à gauche, relâcher = stop |
+| ↻ | Maintenir = pivote à droite, relâcher = stop |
 | ■ | Stop immédiat |
 | 🤏 | Fermer la pince |
 | ✋ | Ouvrir la pince |

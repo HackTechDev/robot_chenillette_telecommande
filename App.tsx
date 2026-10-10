@@ -140,11 +140,12 @@ export default function App() {
           onPressOut={() => send(' ')}
         />
         <View style={styles.row}>
-          {/* Gauche 45° */}
+          {/* Gauche (maintenir) */}
           <DirButton
             label="↺"
             enabled={connected}
             onPressIn={() => send('q')}
+            onPressOut={() => send(' ')}
           />
           {/* Stop */}
           <DirButton
@@ -152,11 +153,12 @@ export default function App() {
             enabled={connected}
             onPressIn={() => send(' ')}
           />
-          {/* Droite 45° */}
+          {/* Droite (maintenir) */}
           <DirButton
             label="↻"
             enabled={connected}
             onPressIn={() => send('d')}
+            onPressOut={() => send(' ')}
           />
         </View>
         {/* Reculer */}

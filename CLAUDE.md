@@ -48,11 +48,11 @@ Characters sent over Bluetooth to the robot:
 |------|--------|
 | `z` | Avance (maintenir) |
 | `s` | Recule (maintenir) |
-| `q` | Pivote à gauche 45° (tap) |
-| `d` | Pivote à droite 45° (tap) |
+| `q` | Pivote à gauche (maintenir) |
+| `d` | Pivote à droite (maintenir) |
 | ` ` (espace) | Stop |
 
-Forward (`z`) and backward (`s`) send a stop character (`' '`) on `onPressOut`. Turn buttons (`q`/`d`) send a single character — the robot stops automatically after 45°.
+Forward (`z`), backward (`s`) and turn (`q`/`d`) buttons send their character on `onPressIn` and a stop character (`' '`) on `onPressOut`: the robot moves as long as the button is held. The app does not repeat commands while held, so the robot firmware must not use a keep-alive timeout.
 
 ## Key Dependencies
 
