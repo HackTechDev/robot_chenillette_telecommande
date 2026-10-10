@@ -31,6 +31,41 @@ cd android && ./gradlew assembleRelease
 
 L'APK est généré dans `android/app/build/outputs/apk/release/app-release.apk`.
 
+## Installer l'APK sur le smartphone
+
+Brancher le téléphone en USB (débogage USB activé), puis vérifier qu'il est détecté :
+
+```bash
+adb devices -l
+```
+
+Transférer et installer l'APK (`-r` remplace la version déjà installée) :
+
+```bash
+adb install -r android/app/build/outputs/apk/release/app-release.apk
+```
+
+> `adb` se trouve dans `$ANDROID_HOME/platform-tools` (par ex. `~/android-sdk/platform-tools/adb`).
+
+### Problème : téléphone `unauthorized`
+
+Si `adb devices` affiche le téléphone avec l'état `unauthorized` :
+
+```
+List of devices attached
+ZY32KDR97N             unauthorized usb:1-8 transport_id:1
+```
+
+le téléphone n'a pas encore autorisé cet ordinateur pour le débogage USB, et l'installation échoue.
+
+**Solution :**
+
+1. Déverrouiller le téléphone : une fenêtre **« Autoriser le débogage USB ? »** s'affiche.
+2. Cocher **« Toujours autoriser depuis cet ordinateur »** puis appuyer sur **Autoriser**.
+3. Relancer `adb devices -l` : l'état doit maintenant être `device`.
+
+Si la fenêtre n'apparaît pas : débrancher puis rebrancher le câble USB. En dernier recours, aller dans **Options pour les développeurs → Révoquer les autorisations de débogage USB**, puis rebrancher le téléphone.
+
 ## Utilisation
 
 1. Ouvrir l'app et appuyer sur **Connecter**

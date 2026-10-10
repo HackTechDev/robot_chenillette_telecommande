@@ -18,7 +18,12 @@ npm run android
 # Build release APK
 cd android && ./gradlew assembleRelease
 # Output: android/app/build/outputs/apk/release/app-release.apk
+
+# Install the APK on the USB-connected phone
+adb install -r android/app/build/outputs/apk/release/app-release.apk
 ```
+
+If `adb devices` shows the phone as `unauthorized`, the user must accept the "Allow USB debugging?" prompt on the phone (see README).
 
 ## Android SDK versions
 
