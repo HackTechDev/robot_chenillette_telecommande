@@ -2,6 +2,7 @@ import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
   Alert,
   FlatList,
+  PanResponder,
   PermissionsAndroid,
   Platform,
   Pressable,
@@ -14,6 +15,12 @@ import {
 import RNBluetoothClassic, {
   BluetoothDevice,
 } from 'react-native-bluetooth-classic';
+
+// Vitesse : chiffre '0'..'9' envoyé au robot → (niveau + 1) × SPEED_PER_LEVEL (40..400).
+// Doit correspondre à SPEED_PER_LEVEL / SPEED_LEVEL_DEFAULT dans le firmware.
+const SPEED_LEVELS = 10;
+const SPEED_PER_LEVEL = 40;
+const SPEED_LEVEL_DEFAULT = 4;
 
 async function requestPermissions(): Promise<boolean> {
   if (Platform.OS !== 'android') return true;
@@ -37,6 +44,7 @@ export default function App() {
   const [connected, setConnected] = useState(false);
   const [devices, setDevices] = useState<BluetoothDevice[]>([]);
   const [showPicker, setShowPicker] = useState(false);
+  const [speedLevel, setSpeedLevel] = useState(SPEED_LEVEL_DEFAULT);
   const deviceRef = useRef<BluetoothDevice | null>(null);
 
   useEffect(() => {
@@ -72,6 +80,8 @@ export default function App() {
     try {
       const success = await d.connect();
       if (success) {
+        // Synchronise la vitesse du robot (réinitialisée à chaque démarrage) avec le slider
+        await d.write(String(speedLevel));
         setDevice(d);
         setConnected(true);
       }
@@ -132,42 +142,56 @@ export default function App() {
 
       {/* Pad directionnel */}
       <View style={styles.pad}>
-        {/* Avancer */}
-        <DirButton
-          label="▲"
-          enabled={connected}
-          onPressIn={() => send('z')}
-          onPressOut={() => send(' ')}
-        />
-        <View style={styles.row}>
-          {/* Gauche (maintenir) */}
-          <DirButton
-            label="↺"
-            enabled={connected}
-            onPressIn={() => send('q')}
-            onPressOut={() => send(' ')}
+        <View style={styles.driveArea}>
+          {/* Vitesse (slider vertical, à gauche des déplacements) */}
+          <SpeedSlider
+            level={speedLevel}
+            onChange={level => {
+              setSpeedLevel(level);
+              send(String(level));
+            }}
           />
-          {/* Stop */}
-          <DirButton
-            label="■"
-            enabled={connected}
-            onPressIn={() => send(' ')}
-          />
-          {/* Droite (maintenir) */}
-          <DirButton
-            label="↻"
-            enabled={connected}
-            onPressIn={() => send('d')}
-            onPressOut={() => send(' ')}
-          />
+          <View style={styles.dpad}>
+            {/* Avancer */}
+            <DirButton
+              label="▲"
+              enabled={connected}
+              onPressIn={() => send('z')}
+              onPressOut={() => send(' ')}
+            />
+            <View style={styles.row}>
+              {/* Gauche (maintenir) */}
+              <DirButton
+                label="↺"
+                enabled={connected}
+                onPressIn={() => send('q')}
+                onPressOut={() => send(' ')}
+              />
+              {/* Stop */}
+              <DirButton
+                label="■"
+                enabled={connected}
+                onPressIn={() => send(' ')}
+              />
+              {/* Droite (maintenir) */}
+              <DirButton
+                label="↻"
+                enabled={connected}
+                onPressIn={() => send('d')}
+                onPressOut={() => send(' ')}
+              />
+            </View>
+            {/* Reculer */}
+            <DirButton
+              label="▼"
+              enabled={connected}
+              onPressIn={() => send('s')}
+              onPressOut={() => send(' ')}
+            />
+          </View>
+          {/* Contrepoids du slider pour garder le pad centré (se réduit si l'écran est étroit) */}
+          <View style={styles.driveSpacer} />
         </View>
-        {/* Reculer */}
-        <DirButton
-          label="▼"
-          enabled={connected}
-          onPressIn={() => send('s')}
-          onPressOut={() => send(' ')}
-        />
 
         {/* Pince (maintenir) */}
         <View style={styles.row}>
@@ -205,6 +229,72 @@ export default function App() {
   );
 }
 
+type SpeedSliderProps = {
+  level: number;
+  onChange: (level: number) => void;
+};
+
+// Slider vertical sans dépendance : haut = rapide, bas = lent.
+// Le geste est suivi depuis le point de contact initial + le déplacement (gestureState.dy).
+function SpeedSlider({level, onChange}: SpeedSliderProps) {
+  const heightRef = useRef(0);
+  const startYRef = useRef(0);
+  const levelRef = useRef(level);
+  const onChangeRef = useRef(onChange);
+
+  useEffect(() => {
+    levelRef.current = level;
+  }, [level]);
+  useEffect(() => {
+    onChangeRef.current = onChange;
+  }, [onChange]);
+
+  const pan = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: () => true,
+      onPanResponderTerminationRequest: () => false,
+      onPanResponderGrant: evt => {
+        startYRef.current = evt.nativeEvent.locationY;
+        update(startYRef.current);
+      },
+      onPanResponderMove: (_evt, gesture) =>
+        update(startYRef.current + gesture.dy),
+    }),
+  ).current;
+
+  function update(y: number) {
+    const h = heightRef.current;
+    if (h <= 0) return;
+    const ratio = 1 - Math.min(Math.max(y / h, 0), 1);
+    const next = Math.round(ratio * (SPEED_LEVELS - 1));
+    if (next !== levelRef.current) {
+      levelRef.current = next;
+      onChangeRef.current(next);
+    }
+  }
+
+  return (
+    <View style={styles.speed}>
+      <Text style={styles.speedValue}>{(level + 1) * SPEED_PER_LEVEL}</Text>
+      <View
+        style={styles.speedTrack}
+        onLayout={e => {
+          heightRef.current = e.nativeEvent.layout.height;
+        }}
+        {...pan.panHandlers}>
+        <View
+          style={[
+            styles.speedFill,
+            {height: `${((level + 1) / SPEED_LEVELS) * 100}%`},
+          ]}
+        />
+      </View>
+      <Text style={styles.speedLabel}>Vit.</Text>
+    </View>
+  );
+}
+
 type DirButtonProps = {
   label: string;
   enabled: boolean;
@@ -233,7 +323,8 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     backgroundColor: '#111',
-    padding: 20,
+    paddingVertical: 20,
+    paddingHorizontal: 12,
   },
   header: {
     alignItems: 'center',
@@ -268,6 +359,49 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     gap: 10,
+  },
+  driveArea: {
+    alignSelf: 'stretch',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 6,
+  },
+  dpad: {
+    alignItems: 'center',
+    gap: 10,
+    flexShrink: 0,
+  },
+  driveSpacer: {
+    width: 28,
+    flexShrink: 1,
+  },
+  speed: {
+    width: 28,
+    flexShrink: 0,
+    alignItems: 'center',
+    gap: 4,
+  },
+  speedValue: {
+    color: '#FFD700',
+    fontSize: 11,
+    fontWeight: 'bold',
+  },
+  speedTrack: {
+    flex: 1,
+    width: 28,
+    borderRadius: 14,
+    backgroundColor: '#2a2a2a',
+    overflow: 'hidden',
+    justifyContent: 'flex-end',
+  },
+  speedFill: {
+    width: '100%',
+    backgroundColor: '#FFD700',
+    pointerEvents: 'none',
+  },
+  speedLabel: {
+    color: '#888',
+    fontSize: 11,
   },
   btn: {
     width: 90,

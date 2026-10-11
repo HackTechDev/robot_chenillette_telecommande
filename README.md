@@ -70,7 +70,8 @@ Si la fenêtre n'apparaît pas : débrancher puis rebrancher le câble USB. En d
 
 1. Ouvrir l'app et appuyer sur **Connecter**
 2. Sélectionner **BatMobile** dans la liste des appareils appairés
-3. Utiliser le pad directionnel :
+3. Régler la vitesse avec le **slider vertical** à gauche du pad (haut = rapide, bas = lent ; valeur affichée de 40 à 400). La vitesse s'applique aux déplacements et aux pivots, même pendant un mouvement, et elle est renvoyée au robot à chaque connexion.
+4. Utiliser le pad directionnel :
 
 | Bouton | Action |
 |--------|--------|

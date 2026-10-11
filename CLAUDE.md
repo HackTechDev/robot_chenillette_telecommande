@@ -43,6 +43,7 @@ Single-file app — all logic lives in `App.tsx`:
 
 - **`requestPermissions()`** — requests `BLUETOOTH_CONNECT` + `BLUETOOTH_SCAN` (Android 12+) or `ACCESS_FINE_LOCATION` (Android < 12).
 - **`App`** — root component managing connection state. Switches between the device picker (`FlatList`) and the control pad.
+- **`SpeedSlider`** — dependency-free vertical slider (`PanResponder`) left of the d-pad; levels `0`–`9` (top = fast). Each level change sends the digit; `connect()` also sends the current level since the robot resets to its default on boot.
 - **`DirButton`** — reusable button using `Pressable` with `onPressIn`/`onPressOut` for hold-to-move behavior.
 
 ## Command Protocol
@@ -59,11 +60,12 @@ Characters sent over Bluetooth to the robot:
 | `c` | Ouvre la pince (maintenir) |
 | `w` | Tête ▲ (maintenir) |
 | `x` | Tête ▼ (maintenir) |
+| `0` … `9` | Vitesse `(n + 1) × 40` (slider) — ne stoppe pas le robot |
 | ` ` (espace) | Stop |
 
 All movement buttons — forward (`z`), backward (`s`), turn (`q`/`d`), claw (`v`/`c`) and head (`w`/`x`) — send their character on `onPressIn` and a stop character (`' '`) on `onPressOut`: the robot (or servo) moves as long as the button is held, and stops where it is on release. The app does not repeat commands while held, so the robot firmware must not use a keep-alive timeout.
 
-**Safety limitations** (documented in README, "Limites de sécurité connues"): because there is no keep-alive, a lost stop character leaves the robot moving. Currently: `send()` swallows write errors; no `onDeviceDisconnected` listener, so `connected` stays `true` after a link loss; `disconnect()` and app backgrounding do not send `' '` first; releasing one button while another is held sends a stop. Any change to the command flow should keep these in mind.
+**Safety limitations** (documented in README, "Limites de sécurité connues"): because there is no keep-alive, a lost stop character leaves the robot moving. Currently: `send()` swallows write errors; no `onDeviceDisconnected` listener, so `connected` stays `true` after a link loss; `disconnect()` and app backgrounding do not send `' '` first; releasing one button while another is held sends a stop. Speed digits never stop the robot. Any change to the command flow should keep these in mind.
 
 ## Key Dependencies
 
