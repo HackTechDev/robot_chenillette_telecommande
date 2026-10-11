@@ -79,10 +79,10 @@ Si la fenêtre n'apparaît pas : débrancher puis rebrancher le câble USB. En d
 | ↺ | Maintenir = pivote à gauche, relâcher = stop |
 | ↻ | Maintenir = pivote à droite, relâcher = stop |
 | ■ | Stop immédiat |
-| 🤏 | Fermer la pince |
-| ✋ | Ouvrir la pince |
-| Tete ▲ | Lever la tête |
-| Tete ▼ | Baisser la tête |
+| 🤏 | Maintenir = ferme la pince progressivement, relâcher = s'arrête |
+| ✋ | Maintenir = ouvre la pince progressivement, relâcher = s'arrête |
+| Tete ▲ | Maintenir = lève la tête progressivement, relâcher = s'arrête |
+| Tete ▼ | Maintenir = baisse la tête progressivement, relâcher = s'arrête |
 
 > Les boutons sont grisés tant que le robot n'est pas connecté.
 

@@ -169,31 +169,35 @@ export default function App() {
           onPressOut={() => send(' ')}
         />
 
-        {/* Pince */}
+        {/* Pince (maintenir) */}
         <View style={styles.row}>
           <DirButton
             label="🤏"
             enabled={connected}
             onPressIn={() => send('v')}
+            onPressOut={() => send(' ')}
           />
           <DirButton
             label="✋"
             enabled={connected}
             onPressIn={() => send('c')}
+            onPressOut={() => send(' ')}
           />
         </View>
 
-        {/* Tête */}
+        {/* Tête (maintenir) */}
         <View style={styles.row}>
           <DirButton
             label="Tete ▲"
             enabled={connected}
             onPressIn={() => send('w')}
+            onPressOut={() => send(' ')}
           />
           <DirButton
             label="Tete ▼"
             enabled={connected}
             onPressIn={() => send('x')}
+            onPressOut={() => send(' ')}
           />
         </View>
       </View>

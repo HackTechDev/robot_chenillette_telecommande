@@ -55,9 +55,13 @@ Characters sent over Bluetooth to the robot:
 | `s` | Recule (maintenir) |
 | `q` | Pivote à gauche (maintenir) |
 | `d` | Pivote à droite (maintenir) |
+| `v` | Ferme la pince (maintenir) |
+| `c` | Ouvre la pince (maintenir) |
+| `w` | Tête ▲ (maintenir) |
+| `x` | Tête ▼ (maintenir) |
 | ` ` (espace) | Stop |
 
-Forward (`z`), backward (`s`) and turn (`q`/`d`) buttons send their character on `onPressIn` and a stop character (`' '`) on `onPressOut`: the robot moves as long as the button is held. The app does not repeat commands while held, so the robot firmware must not use a keep-alive timeout.
+All movement buttons — forward (`z`), backward (`s`), turn (`q`/`d`), claw (`v`/`c`) and head (`w`/`x`) — send their character on `onPressIn` and a stop character (`' '`) on `onPressOut`: the robot (or servo) moves as long as the button is held, and stops where it is on release. The app does not repeat commands while held, so the robot firmware must not use a keep-alive timeout.
 
 **Safety limitations** (documented in README, "Limites de sécurité connues"): because there is no keep-alive, a lost stop character leaves the robot moving. Currently: `send()` swallows write errors; no `onDeviceDisconnected` listener, so `connected` stays `true` after a link loss; `disconnect()` and app backgrounding do not send `' '` first; releasing one button while another is held sends a stop. Any change to the command flow should keep these in mind.
 
